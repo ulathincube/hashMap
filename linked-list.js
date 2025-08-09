@@ -9,8 +9,8 @@ function createLinkedList() {
   let head = null;
 
   const addNode = value => {
+    const newNode = createNode(value);
     if (!head) {
-      const newNode = createNode(value);
       head = newNode;
       return;
     } else {
@@ -22,6 +22,8 @@ function createLinkedList() {
 
       currentNode.next = newNode;
     }
+
+    return head;
   };
 
   return { addNode };
