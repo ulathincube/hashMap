@@ -12,7 +12,6 @@ function createLinkedList() {
     const newNode = createNode(value);
     if (!head) {
       head = newNode;
-      return;
     } else {
       let currentNode = head;
 

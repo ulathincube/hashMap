@@ -19,55 +19,85 @@ function createHashMap(loadFactor = 0.75, capacity = 16) {
   };
 
   const set = (key, value) => {
-    const hashCode = hash(key);
+    const index = hash(key);
 
-    if (hashCode >= hashMap.length || hashCode < 0) {
-      throw new Error('Trying to access index out of bounds!');
-    }
+    // if (length() >= loadFactor * capacity) {
+    //   console.log(key);
+    //   console.log('Load Factor * Capacity Growing!');
+    //   const newHashMap = new Array(capacity * 2).fill(null);
+    //   const entriesArr = entries();
 
-    const listLength = length();
-    if (listLength >= loadFactor * capacity) {
-      const newHashMap = new Array(capacity * 2).fill(null);
+    //   for (let i = 0; i < entriesArr.length; i++) {
+    //     const { key, value } = entriesArr[i];
+    //     const hashCode = hash(key);
 
-      for (let i = 0; i < hashMap.length; i++) {
-        for (let j = 0; j < newHashMap.length; j++) {
-          if (hashMap[i] && !newHashMap[j]) {
-            newHashMap[j] = hashMap[i];
-            j++;
-            i++;
-          }
-        }
+    //     if (!newHashMap[hashCode]) {
+    //       newHashMap[hashCode] = { key, value };
+    //     } else {
+    //       const headNode = newHashMap[i];
+
+    //       const linkedList = createLinkedList();
+    //       linkedList.addNode(headNode);
+    //       const newNode = linkedList.addNode({ key, value });
+
+    //       newHashMap[i] = newNode;
+    //     }
+    //   }
+
+    //   hashMap = newHashMap;
+    // }
+
+    if (!hashMap[index]) {
+      const linkedList = createLinkedList();
+      const headNode = linkedList.addNode({ key, value });
+      hashMap[index] = headNode;
+    } else {
+      // hashMap[index] = true
+      const headNode = hashMap[index];
+
+      if (headNode.key === key) {
+        headNode.value = value;
+        hashMap[index] = headNode;
+      } else {
+        const newLinkedList = createLinkedList();
+        newLinkedList.addNode(headNode);
+        const newNode = newLinkedList.addNode({ key, value });
+        hashMap[index] = newNode;
       }
     }
 
-    if (hashMap[hashCode] && hashMap[hashCode].key === key) {
-      hashMap[hashCode].value = value;
-    } else if (hashMap[hashCode] && hashMap[hashCode].key !== key) {
-      // create a node list
-      const linkedList = createLinkedList();
-      const head = hashMap[hashCode];
+    // if (hashMap[index] && hashMap[index].key === key) {
+    //   hashMap[index].value = value;
+    // } else if (hashMap[index] && hashMap[index].key !== key) {
+    //   // create a linked list
+    //   const linkedList = createLinkedList();
+    //   const head = hashMap[index];
 
-      linkedList.addNode(head);
-      const list = linkedList.addNode({ key, value });
+    //   linkedList.addNode(head);
+    //   const result = linkedList.addNode({ key, value });
 
-      console.log('linkedlist made!', list);
-    } else {
-      hashMap[hashCode] = { key, value };
-    }
+    //   hashMap[index] = result;
+    // } else {
+    //   hashMap[index] = { key, value };
+    // }
+
+    console.log('length is', length());
   };
 
   const get = key => {
-    const hashCode = hash(key);
+    const index = hash(key);
 
-    if (hashCode >= hashMap.length || hashCode < 0) {
+    if (index >= hashMap.length || index < 0) {
       throw new Error('Trying to access index out of bounds!');
     }
 
-    if (hashMap[hashCode]) {
-      const { value, key: hashKey } = hashMap[hashCode];
+    if (hashMap[index]) {
+      const { value, key: hashKey } = hashMap[index];
 
       if (hashKey === key) {
         return value;
+      } else {
+        return null;
       }
     }
 
@@ -75,27 +105,27 @@ function createHashMap(loadFactor = 0.75, capacity = 16) {
   };
 
   const has = key => {
-    const hashCode = hash(key);
+    const index = hash(key);
 
-    if (hashCode >= hashMap.length || hashCode < 0) {
+    if (index >= hashMap.length || index < 0) {
       throw new Error('Trying to access index out of bounds!');
     }
 
-    if (hashMap[hashCode].key === key) {
+    if (hashMap[index].key === key) {
       return true;
     } else return false;
   };
 
   const remove = key => {
-    const hashCode = hash(key);
+    const index = hash(key);
 
-    if (hashCode >= hashMap.length || hashCode < 0) {
+    if (index >= hashMap.length || index < 0) {
       throw new Error('Trying to access index out of bounds!');
     }
 
-    if (hashMap[hashCode].key === key) {
-      // remove from hashmap
-      hashMap[hashCode] = null;
+    if (hashMap[index].key === key) {
+      // remove from hashMap
+      hashMap[index] = null;
     }
     return null;
   };
@@ -103,9 +133,17 @@ function createHashMap(loadFactor = 0.75, capacity = 16) {
   const length = () => {
     let count = 0;
 
-    for (let i = 0; i < capacity; i++) {
-      if (hashMap[i] && hashMap[i].key) {
+    for (let i = 0; i < hashMap.length; i++) {
+      if (hashMap[i]) {
         count++;
+        let current = hashMap[i];
+
+        while (current) {
+          current = current.next;
+          if (current) {
+            count++;
+          }
+        }
       }
     }
 
@@ -117,18 +155,43 @@ function createHashMap(loadFactor = 0.75, capacity = 16) {
   };
 
   const values = () => {
-    const valuesArr = hashMap.map(bucket => {
-      if (bucket) {
-        return bucket.value;
-      } else return null;
-    });
+    const valuesArr = [];
+
+    for (let i = 0; i < hashMap.length; i++) {
+      if (hashMap[i] && hashMap[i].next) {
+        let current = hashMap[i];
+
+        while (current) {
+          valuesArr.push(current.value);
+          current = current.next;
+        }
+      } else {
+        valuesArr.push(hashMap[i]);
+      }
+    }
+
     return valuesArr;
   };
 
   const entries = () => {
-    const entriesArr = hashMap.map(bucket => {
-      return [bucket.key, bucket.value];
-    });
+    const entriesArr = [];
+
+    for (let i = 0; i < hashMap.length; i++) {
+      if (hashMap[i] && hashMap[i].next) {
+        let current = hashMap[i];
+
+        while (current) {
+          const value = current.value;
+
+          entriesArr.push(value);
+          current = current.next;
+        }
+      } else if (hashMap[i]) {
+        entriesArr.push(hashMap[i]);
+      }
+    }
+
+    // console.log(entriesArr);
 
     return entriesArr;
   };
@@ -149,6 +212,10 @@ test.set('hat', 'black');
 test.set('ice cream', 'white');
 test.set('jacket', 'blue');
 test.set('kite', 'pink');
+test.set('moon', 'silver');
 test.set('lion', 'golden');
 
 console.log(test.values());
+console.log(test.length());
+
+// console.log('ENTRIES', test.entries());
