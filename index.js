@@ -21,31 +21,31 @@ function createHashMap(loadFactor = 0.75, capacity = 16) {
   const set = (key, value) => {
     const index = hash(key);
 
-    // if (length() >= loadFactor * capacity) {
-    //   const newHashMap = new Array(capacity * 2).fill(null);
-    //   const entriesArr = entries();
+    if (length() >= loadFactor * capacity) {
+      const newHashMap = new Array(capacity * 2).fill(null);
+      const entriesArr = entries();
 
-    //   console.log('ENTRIES', entriesArr);
+      for (let i = 0; i < entriesArr.length; i++) {
+        const [key, value] = entriesArr[i];
+        const index = hash(key);
 
-    //   for (let i = 0; i < entriesArr.length; i++) {
-    //     const [key, value] = entriesArr[i];
-    //     const hashCode = hash(key);
+        if (!newHashMap[index]) {
+          newHashMap[index] = { key, value };
+        } else {
+          const headNode = newHashMap[i];
 
-    //     if (!newHashMap[hashCode]) {
-    //       newHashMap[hashCode] = { key, value };
-    //     } else {
-    //       const headNode = newHashMap[i];
+          const linkedList = createLinkedList();
+          linkedList.addNode(headNode);
+          const newNode = linkedList.addNode({ key, value });
 
-    //       const linkedList = createLinkedList();
-    //       linkedList.addNode(headNode);
-    //       const newNode = linkedList.addNode({ key, value });
+          newHashMap[i] = newNode;
+        }
+      }
 
-    //       newHashMap[i] = newNode;
-    //     }
-    //   }
+      hashMap = newHashMap;
 
-    //   hashMap = newHashMap;
-    // }
+      console.log(hashMap);
+    }
 
     if (!hashMap[index]) {
       const linkedList = createLinkedList();
@@ -166,7 +166,6 @@ function createHashMap(loadFactor = 0.75, capacity = 16) {
         const { key, value } = current.value;
 
         if (key == undefined) {
-          console.log('CURRENT', current.value, current);
           const { key: deepKey, value: deepValue } = current.value.value;
           entriesArr.push([deepKey, deepValue]);
         } else {
@@ -197,5 +196,3 @@ test.set('jacket', 'blue');
 test.set('kite', 'pink');
 test.set('moon', 'silver');
 test.set('lion', 'golden');
-
-console.log('ENTRIES', test.entries());
