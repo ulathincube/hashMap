@@ -22,13 +22,13 @@ function createHashMap(loadFactor = 0.75, capacity = 16) {
     const index = hash(key);
 
     // if (length() >= loadFactor * capacity) {
-    //   console.log(key);
-    //   console.log('Load Factor * Capacity Growing!');
     //   const newHashMap = new Array(capacity * 2).fill(null);
     //   const entriesArr = entries();
 
+    //   console.log('ENTRIES', entriesArr);
+
     //   for (let i = 0; i < entriesArr.length; i++) {
-    //     const { key, value } = entriesArr[i];
+    //     const [key, value] = entriesArr[i];
     //     const hashCode = hash(key);
 
     //     if (!newHashMap[hashCode]) {
@@ -65,23 +65,6 @@ function createHashMap(loadFactor = 0.75, capacity = 16) {
         hashMap[index] = newNode;
       }
     }
-
-    // if (hashMap[index] && hashMap[index].key === key) {
-    //   hashMap[index].value = value;
-    // } else if (hashMap[index] && hashMap[index].key !== key) {
-    //   // create a linked list
-    //   const linkedList = createLinkedList();
-    //   const head = hashMap[index];
-
-    //   linkedList.addNode(head);
-    //   const result = linkedList.addNode({ key, value });
-
-    //   hashMap[index] = result;
-    // } else {
-    //   hashMap[index] = { key, value };
-    // }
-
-    console.log('length is', length());
   };
 
   const get = key => {
@@ -177,25 +160,25 @@ function createHashMap(loadFactor = 0.75, capacity = 16) {
     const entriesArr = [];
 
     for (let i = 0; i < hashMap.length; i++) {
-      if (hashMap[i] && hashMap[i].next) {
-        let current = hashMap[i];
+      let current = hashMap[i];
 
-        while (current) {
-          const value = current.value;
+      while (current) {
+        const { key, value } = current.value;
 
-          entriesArr.push(value);
-          current = current.next;
+        if (key == undefined) {
+          console.log('CURRENT', current.value, current);
+          const { key: deepKey, value: deepValue } = current.value.value;
+          entriesArr.push([deepKey, deepValue]);
+        } else {
+          entriesArr.push([key, value]);
         }
-      } else if (hashMap[i]) {
-        entriesArr.push(hashMap[i]);
+
+        current = current.next;
       }
     }
 
-    // console.log(entriesArr);
-
     return entriesArr;
   };
-
   return { set, get, has, remove, length, clear, values, entries };
 }
 
@@ -215,7 +198,4 @@ test.set('kite', 'pink');
 test.set('moon', 'silver');
 test.set('lion', 'golden');
 
-console.log(test.values());
-console.log(test.length());
-
-// console.log('ENTRIES', test.entries());
+console.log('ENTRIES', test.entries());
